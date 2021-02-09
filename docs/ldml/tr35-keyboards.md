@@ -221,7 +221,7 @@ If it becomes necessary in the future, the format could extend the ISO layout to
 
 ## 4 <a name="File_and_Dir_Structure" href="#File_and_Dir_Structure">File and Directory Structure</a>
 
-Each platform has its own directory, where a "platform" is a designation for a set of keyboards available from a particular source, such as Windows or Chromeos. This directory name is the platform name (see Table 2 located further in the document). Within this directory there are two types of files:
+Each platform has its own directory, where a "platform" is a designation for a set of keyboards available from a particular source, such as Windows or ChromeOS. This directory name is the platform name (see Table 2 located further in the document). Within this directory there are two types of files:
 
 1. A single platform file (see XML structure for Platform file), this file includes a mapping of hardware key codes to the ISO layout positions. This file is also open to expansion for any configuration elements that are valid across the whole platform and that are not layout specific. This file is simply called `_platform.xml`.
 2. Multiple layout files named by their locale identifiers. (eg. `lt-t-k0-chromeos.xml` or `ne-t-k0-windows.xml`).
@@ -549,7 +549,7 @@ Then the first key must be tagged with `transform="no"` to indicate that it shou
 
 Comment: US key equivalent, base key, escaped output and escaped longpress
 
-In the generated files, a comment is included to help the readability of the document. This comment simply shows the English key equivalent (with prefix `key=`), the base character (`base=`), the escaped output (`to=`) and escaped long-press keys (`long=`). These comments have been inserted strategically in places to improve readability. Not all comments include include all components since some of them may be obvious.
+In the generated files, a comment is included to help the readability of the document. This comment simply shows the English key equivalent (with prefix `key=`), the base character (`base=`), the escaped output (`to=`) and escaped long-press keys (`long=`). These comments have been inserted strategically in places to improve readability. Not all comments include all components since some of them may be obvious.
 
 Examples
 
@@ -586,15 +586,30 @@ Examples
 
 #### 5.8.1 <a name="Element_flicks" href="#Element_flicks">Elements: flicks, flick</a>
 
-```
-<!ELEMENT keyMap ( map | flicks )+ >  
-<!ELEMENT flick EMPTY>  
-<!ATTLIST flick directions NMTOKENS>  
-<!ATTLIST flick to CDATA>  
-<!--@VALUE-->
+The `flicks` element is used to generate results from a "flick" of the finger on a mobile device. 
+
+```xml
+<flicks iso="{the iso position}"> 
+    {a set of flick elements} 
+</flicks> 
 ```
 
-The `flicks` element is used to generate results from a "flick" of the finger on a mobile device. The `directions` attribute value is a space-delimited list of keywords, that describe a path, currently restricted to the cardinal and intercardinal directions `{n e s w ne nw se sw}`. The `to` attribute value is the result of (one or more) flicks.
+_Attribute:_ `iso` (required)
+
+> The `iso` attribute represents the ISO layout position of the key (see the definition at the beginning of the document for more information).
+
+
+```xml
+<flick directions="{list of directions}" to="{the output}" /> 
+```
+ 
+_Attribute:_ `directions` (required) 
+
+> The `directions` attribute value is a space-delimited list of keywords, that describe a path, currently restricted to the cardinal and intercardinal directions `{n e s w ne nw se sw}`. 
+
+_Attribute:_ `to` (required) 
+
+> The to attribute value is the result of (one or more) flicks. 
 
 Example: where a flick to the Northeast then South produces two code points.
 
@@ -661,15 +676,15 @@ _Attribute:_ `display` (required)
 > Required and specifies the character sequence that should be displayed on the keytop for any key that generates the `@mapOutput` sequence. (It is an error if the value of the `display` attribute is the same as the value of the `char` attribute.)
 
 ```xml
-<keyboard >
-    <keyboardMap>
+<keyboard>
+    <keyMap>
         <map iso="C01" to="a" longpress="\u0301 \u0300" />
-    </keyboardMap>
+    </keyMap>
     <displayMap>
         <display mapOutput="\u0300" display="u\u02CB" />
         <display mapOutput="\u0301" display="u\u02CA" />
     </displayMap>  
-</keyboard >
+</keyboard>
 ```
 
 To allow `displayMap`s to be shared across descriptions, there is no requirement that `@mapOutput` matches any `@to` in any `keyMap/map` element in the keyboard description.
@@ -939,7 +954,7 @@ Most transforms in practice have only a couple of characters. But for completene
 2. If there could not be a longer match, find the longest actual match, emit the transformed text (if failure is set to emit), and start processing again with the remainder.
 3. If there is no possible match, output the first character, and start processing again with the remainder.
 
-Suppose that there is the following transforms:
+Suppose that there are the following transforms:
 
 ```
 ab → x
@@ -1073,13 +1088,21 @@ In order to get the characters into the correct relative order, it is necessary 
 
 The reorder transform consists of a single element type: `<reorder>` encapsulated in a `<reorders>` element. Each is a rule that matches against a string of characters with the action of setting the various ordering attributes (`primary`, `tertiary`, `tertiary_base`, `prebase`) for the matched characters in the string.
 
-> **from** This attribute follows the `transform/@from` attribute and contains a string of elements. Each element matches one character and may consist of a codepoint or a UnicodeSet (both as defined in UTS#35 section 5.3.3). This attribute is required.
-> 
-> **before** This attribute follows the `transform/@before` attribute and contains the element string that must match the string immediately preceding the start of the string that the @from matches.
-> 
-> **after** This attribute follows the `transform/@after` attribute and contains the element string that must match the string immediately following the end of the string that the @from matches.
-> 
-> **order** This attribute gives the primary order for the elements in the matched string in the `@from` attribute. The value is a simple integer between -128 and +127 inclusive, or a space separated list of such integers. For a single integer, it is applied to all the elements in the matched string. Details of such list type attributes are given after all the attributes are described. If missing, the order value of all the matched characters is 0. We consider the order value for a matched character in the string.
+_Attribute:_ `from` (required)
+
+> This attribute follows the `transform/@from` attribute and contains a string of elements. Each element matches one character and may consist of a codepoint or a UnicodeSet (both as defined in UTS#35 section 5.3.3).
+
+_Attribute:_ `before`
+
+> This attribute follows the `transform/@before` attribute and contains the element string that must match the string immediately preceding the start of the string that the @from matches.
+
+_Attribute:_ `after`
+
+> This attribute follows the `transform/@after` attribute and contains the element string that must match the string immediately following the end of the string that the `@from` matches.
+
+_Attribute:_ `order`
+
+> This attribute gives the primary order for the elements in the matched string in the `@from` attribute. The value is a simple integer between -128 and +127 inclusive, or a space separated list of such integers. For a single integer, it is applied to all the elements in the matched string. Details of such list type attributes are given after all the attributes are described. If missing, the order value of all the matched characters is 0. We consider the order value for a matched character in the string.
 > 
 > * If the value is 0 and its tertiary value is 0, then the character is the base of a new run.
 > * If the value is 0 and its tertiary value is non-zero, then it is a normal character in a run, with ordering semantics as described in the `@tertiary` attribute.
@@ -1092,8 +1115,10 @@ The reorder transform consists of a single element type: `<reorder>` encapsulate
 > * Secondary weight is the index of the character. This may be any value (character index, codepoint index) such that its value is greater than the character before it and less than the character after it.
 > * Tertiary weight is 0.
 > * Quaternary weight is the same as the secondary weight.
-> 
-> **tertiary** This attribute gives the tertiary order value to the characters matched. The value is a simple integer between -128 and +127 inclusive, or a space separated list of such integers. If missing, the value for all the characters matched is 0. We consider the tertiary value for a matched character in the string.
+
+_Attribute:_ `tertiary`
+
+> This attribute gives the tertiary order value to the characters matched. The value is a simple integer between -128 and +127 inclusive, or a space separated list of such integers. If missing, the value for all the characters matched is 0. We consider the tertiary value for a matched character in the string.
 > 
 > * If the value is 0 then the character is considered to have a primary order as specified in its order value and is a primary character.
 > * If the value is non zero, then the order value must be zero otherwise it is an error. The character is considered as a tertiary character for the purposes of ordering.
@@ -1104,10 +1129,14 @@ The reorder transform consists of a single element type: `<reorder>` encapsulate
 > * Secondary weight is the index of the primary character, not the tertiary character
 > * Tertiary weight is the tertiary value for the character.
 > * Quaternary weight is the index of the tertiary character.
-> 
-> **tertiary\_base** This attribute is a space separated list of `"true"` or `"false"` values corresponding to each character matched. It is illegal for a tertiary character to have a true `tertiary_base` value. For a primary character it marks that this character may have tertiary characters moved after it. When calculating the secondary weight for a tertiary character, the most recently encountered primary character with a true `tertiary_base` attribute is used. Primary characters with an `@order` value of 0 automatically are treated as having `tertiary_base` true regardless of what is specified for them.
-> 
-> **prebase** This attribute gives the prebase attribute for each character matched. The value may be `"true"` or `"false"` or a space separated list of such values. If missing the value for all the characters matched is false. It is illegal for a tertiary character to have a true prebase value.
+
+_Attribute:_ `tertiary_base`
+
+> This attribute is a space separated list of `"true"` or `"false"` values corresponding to each character matched. It is illegal for a tertiary character to have a true `tertiary_base` value. For a primary character it marks that this character may have tertiary characters moved after it. When calculating the secondary weight for a tertiary character, the most recently encountered primary character with a true `tertiary_base` attribute is used. Primary characters with an `@order` value of 0 automatically are treated as having `tertiary_base` true regardless of what is specified for them.
+
+_Attribute:_ `prebase`
+
+> This attribute gives the prebase attribute for each character matched. The value may be `"true"` or `"false"` or a space separated list of such values. If missing the value for all the characters matched is false. It is illegal for a tertiary character to have a true prebase value.
 >
 > If a primary character has a true prebase value then the character is marked as being typed before the base character of a run, even though it is intended to be stored after it. The primary order gives the intended position in the order after the base character, that the prebase character will end up. Thus `@primary` may not be 0. These characters are part of the run prefix. If such characters are typed then, in order to give the run a base character after which characters can be sorted, an appropriate base character, such as a dotted circle, is inserted into the output run, until a real base character has been typed. A value of `"false"` indicates that the character is not a prebase.
 
