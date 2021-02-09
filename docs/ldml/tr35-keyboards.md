@@ -267,7 +267,7 @@ Element used to keep track of the source data version.
 Syntax
 
 ```xml
-<version platform=".." revision="..">  
+<version platform=".." number="..">  
 ```
 
 _Attribute:_ `platform` (required)
@@ -276,7 +276,7 @@ _Attribute:_ `platform` (required)
 
 _Attribute:_ `number` (required)
 
-> The data revision version.
+> The data revision version. The attribute value must start with `$Revision` and end with `$`.
 
 _Attribute:_ `cldrVersion` (fixed by DTD)
 
@@ -485,7 +485,11 @@ Syntax
  to="{the output}"
  [longPress="{long press keys}"]
  [transform="no"]
-/><!-- {Comment to improve readability (if needed)} -->
+ [multitap="{the output on subsequent taps}"] 
+ [longPress-status="optional"] 
+ [optional="{optional mappings}"] 
+ [hint="{hint to long press content}"] 
+ /><!-- {Comment to improve readability (if needed)} -->
 ```
 
 _Attribute:_ `iso` (exactly one of base and iso is required)
@@ -496,7 +500,7 @@ _Attribute:_ `to` (required)
 
 > The `to` attribute contains the output sequence of characters that is emitted when pressing this particular key. Control characters, whitespace (other than the regular space character) and combining marks in this attribute are escaped using the `\u{...}` notation.
 
-_Attribute:_ `longPress` (optional)
+_Attribute:_ `longPress="optional"` (optional)
 
 > The `longPress` attribute contains any characters that can be emitted by "long-pressing" a key, this feature is prominent in mobile devices. The possible sequences of characters that can be emitted are whitespace delimited. Control characters, combining marks and whitespace (which is intended to be a long-press option) in this attribute are escaped using the `\u{...}` notation.
 
@@ -795,6 +799,10 @@ Here is an example of a `switch` element for a shift key:
 
 On some architectures, applications may directly interact with keys before they are converted to characters. The keys are identified using a virtual key identifier or vkey. The mapping between a physical keyboard key and a vkey is keyboard-layout dependent. For example, a French keyboard would identify the D01 key as being an 'a' with a vkey of 'a' as opposed to 'q' on a US English keyboard. While vkeys are layout dependent, they are not modifier dependent. A shifted key always has the same vkey as its unshifted counterpart. In effect, a key is identified by its vkey and the modifiers active at the time the key was pressed.
 
+_Attribute:_ `type`
+
+> Current values: android, chromeos, osx, und, windows. 
+
 For a physical keyboard there is a layout specific default mapping of keys to vkeys. These are listed in a `vkeys` element which takes a list of `vkey` element mappings and is identified by a type. There are different vkey mappings required for different platforms. While `type="windows"` vkeys are very similar to `type="osx"` vkeys, they are not identical and require their own mapping.
 
 The most common model for specifying vkeys is to import a standard mapping, say to the US layout, and then to add a `vkeys` element to change the mapping appropriately for the specific layout.
@@ -812,10 +820,6 @@ A `vkey` element describes a mapping between a key and a vkey for a particular p
 _Attribute:_ `iso` (required)
 
 > The ISOkey being mapped.
-
-_Attribute:_ `type`
-
-> Current values: android, chromeos, osx, und, windows.
 
 _Attribute:_ `vkey` (required)
 
@@ -929,7 +933,11 @@ This element must have the `transforms` element as its parent. This element repr
 Syntax
 
 ```xml
-<transform from="{combination of characters}" to="{output}">
+<transform from="{combination of characters}" to="{output}"
+   [before="{look-behind required match}"] 
+   [after="{look-ahead required match}"] 
+   [error="fail"]
+>
 ```
 
 _Attribute:_ `from` (required)
@@ -1022,7 +1030,7 @@ _Attribute:_ `after` (optional)
 
 > This attribute consists of a sequence of elements (codepoint or UnicodeSet) and matches as a zero-width assertion after the `@from` sequence. The attribute must match for the transform to apply. If missing, no after constraint is applied. The attribute value must not be empty. When the transform is applied, the string matched by the `@from` attribute is replaced by the string in the `@to` attribute, with the text matched by the `@after` attribute left unchanged. After the change, the current position is reset to just after the text output from the `@to` attribute and just before the text matched by the `@after` attribute. Warning: some legacy implementations may not be able to make such an adjustment and will place the current position after the `@after` matched string.
 
-_Attribute:_ `error` (optional)
+_Attribute:_ `error="fail"` (optional)
 
 > If set this attribute indicates that the keyboarding application may indicate an error to the user in some way. Processing may stop and rewind to any state before the key was pressed. If processing does stop, no further transforms on the same input are applied. The `@error` attribute takes the value `"fail"`, or must be absent. If processing continues, the `@to` is used for output as normal. It thus should contain a reasonable value.
 
