@@ -462,10 +462,10 @@ Modifier Examples:
 Caps-Lock may be ON or OFF, Option must be ON, Shift must be ON and Command may be ON or OFF.
 
 ```xml
-<keyMap modifiers="shift caps" fallback="true" />
+<keyMap modifiers="shift caps" />
 ```
 
-Caps-Lock must be ON OR Shift must be ON. Is also the fallback key map.
+Caps-Lock must be ON OR Shift must be ON.
 
 If the `modifiers` attribute is not present on a `keyMap` then that particular key map is the base map.
 
@@ -1469,13 +1469,12 @@ Beyond what the DTD imposes, certain other restrictions on the data are imposed 
     * eg you can't have `"RAlt Ctrl"` in one `keyMap`, and `"Alt Shift"` in another (because Alt = RAltLAlt).
 4.  Every sequence of characters in a `transform[@from]` value must be a concatenation of two or more `map[@to]` values.
     * eg with `<transform from="xyz" to="q">` there must be some map values to get there, such as `<map... to="xy">` & `<map... to="z">`
-5.  There must be either 0 or 1 of (`keyMap[@fallback]` or `baseMap[@fallback]`) attributes
-6.  If the base and chars values for `modifiers=""` are all identical, and there are no longpresses, that `keyMap` must not appear (??)
-7.  There will never be overlaps among modifier values.
-8.  A modifier set will never have ? (optional) on all values
+5.  If the base and chars values for `modifiers=""` are all identical, and there are no longpresses, that `keyMap` must not appear (??)
+6.  There will never be overlaps among modifier values.
+7.  A modifier set will never have ? (optional) on all values
     * eg, you'll never have `RCtrl?Caps?LShift?`
-9.  Every `base[@base`] value must be unique.
-10. A `modifier` attribute value will aways be minimal, observing the following simplification rules.  
+8.  Every `base[@base`] value must be unique.
+9. A `modifier` attribute value will aways be minimal, observing the following simplification rules.  
     
 | Notation                                 | Notes | 
 |------------------------------------------|-------|
